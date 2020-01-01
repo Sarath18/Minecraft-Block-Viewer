@@ -96,7 +96,7 @@ int main() {
 
     Renderer renderer;
 
-    glm::mat4 model(1.0f);
+    glm::mat4 model(1.0f), animation_hover(1.0f), animation_rotate(1.0f);
 
     GLCheckError();
 
@@ -107,6 +107,10 @@ int main() {
       glm::mat4 projection = glm::perspective(camera.GetZoom(), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
       glm::mat4 view = camera.GetViewMatrix();
 
+      float current_time = glfwGetTime();
+      animation_hover = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.15f * sin(2 * current_time), 0.0f));
+      animation_rotate = glm::rotate(animation_rotate, 0.02f, glm::vec3(0.0, 1.0, 0.0));
+
       // Render Block
       {
         texture_atlas.Bind(0);
@@ -114,7 +118,7 @@ int main() {
         shader.Bind();
         shader.SetUniformMat4f("projection", projection);
         shader.SetUniformMat4f("view", view);
-        shader.SetUniformMat4f("model", model);
+        shader.SetUniformMat4f("model", animation_rotate * animation_hover * model);
 
         shader.SetUniform1i("u_Texture", 0);
 

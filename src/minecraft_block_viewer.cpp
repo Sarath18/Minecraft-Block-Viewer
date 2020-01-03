@@ -48,8 +48,6 @@ int main() {
 
   GLClearError();
 
-  glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
-
   // Background color: white
   glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
@@ -62,7 +60,7 @@ int main() {
     glEnable(GL_CULL_FACE);
 
     // Initalize Camera
-    Camera camera(glm::vec3(-3.0f, 1.8f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -45.0f, -20.0f);
+    Camera camera(glm::vec3(-3.0f, 1.5f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -45.0f, -20.0f);
 
     // Initalize Shaer
     Shader shader("../shaders/block.shader");
@@ -84,7 +82,8 @@ int main() {
     }
 
     // Create a block
-    Block block;
+    Block block(block_list.front(), 0, root);
+    block.block_description();
 
     Texture texture_atlas("../res/texture.png");
     texture_atlas.Bind(0);
@@ -118,9 +117,12 @@ int main() {
 
     GLCheckError();
 
-    bool space_pressed = false;
+    bool space_pressed = false, l_pressed = false;
 
     unsigned int block_id = 0;
+
+    glm::vec3 lightPosition(-4.0f, 5.0f, 4.0f);
+    bool lighting_enabled = false;
 
     do {
       GLClearError();
@@ -142,7 +144,23 @@ int main() {
         shader.SetUniformMat4f("view", view);
         shader.SetUniformMat4f("model", animation_rotate * animation_hover * model);
 
-        shader.SetUniform1i("u_Texture", 0);
+        if(lighting_enabled) {
+          shader.SetUniform1i("u_Texture", 0);
+          shader.SetUniform1i("lightingEnabled", 0);
+        } else {
+          shader.SetUniform1i("lightingEnabled", 1);
+
+          shader.SetUniform3f("viewPos", camera.GetPosition().x, camera.GetPosition().y, camera.GetPosition().z);
+          shader.SetUniform3f("light.position", lightPosition.x, lightPosition.y, lightPosition.z);
+
+          shader.SetUniform3f("light.ambient", 0.25f, 0.25f, 0.25f);
+          shader.SetUniform3f("light.diffuse", 0.9f, 0.9f, 0.9f);
+          shader.SetUniform3f("light.specular", 0.5f, 0.5f, 0.5f);
+
+          shader.SetUniform1i("material.diffuse", 0);
+          shader.SetUniform1i("material.specular", 0);
+          shader.SetUniform1f("material.shininess", 2.0f);
+        }
 
         renderer.Draw(vao, ib, shader);
       }
@@ -179,6 +197,17 @@ int main() {
 
       if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
         space_pressed = false;
+      }
+
+      if(glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
+        if(!l_pressed) {
+          lighting_enabled = !lighting_enabled;
+          l_pressed = true;
+        }
+      }
+
+      if(glfwGetKey(window, GLFW_KEY_L) == GLFW_RELEASE) {
+        l_pressed = false;
       }
 
       // Swap Buffers

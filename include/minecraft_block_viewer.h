@@ -22,6 +22,7 @@
 
 
 #include "Block.h"
+#include <fstream>
 
 void GLClearError() {
   while(glGetError() != GL_NO_ERROR);

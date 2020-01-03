@@ -39,4 +39,5 @@ target_link_libraries(
 	glfw							# GLFW
 	GLU								# GLU
 	glhelper						# Custom Library
+	jsoncpp
 )

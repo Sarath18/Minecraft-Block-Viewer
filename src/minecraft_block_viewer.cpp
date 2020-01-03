@@ -61,14 +61,32 @@ int main() {
 
     glEnable(GL_CULL_FACE);
 
+    // Initalize Camera
     Camera camera(glm::vec3(-3.0f, 1.8f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -45.0f, -20.0f);
 
+    // Initalize Shaer
     Shader shader("../shaders/block.shader");
 
-    Block block;
-    block.block_description();
+    // Read block information from file
+    Json::Reader reader;
+    Json::Value root;
+    std::ifstream ifs("../res/block_info.json");
+    bool parsing_successful = reader.parse(ifs, root);
+    if(!parsing_successful) {
+      std::cout << "Failed to parse block_info.json" << std::endl;
+      getchar();
+      return -1;
+    }
 
-    Texture texture_atlas("../res/cobble.jpg");
+    std::vector<std::string> block_list;
+    for(auto data: root["blocks"].getMemberNames()) {
+      block_list.push_back(data);
+    }
+
+    // Create a block
+    Block block;
+
+    Texture texture_atlas("../res/texture.png");
     texture_atlas.Bind(0);
 
     unsigned int vao;
@@ -100,6 +118,10 @@ int main() {
 
     GLCheckError();
 
+    bool space_pressed = false;
+
+    unsigned int block_id = 0;
+
     do {
       GLClearError();
       renderer.Clear();
@@ -107,7 +129,7 @@ int main() {
       glm::mat4 projection = glm::perspective(camera.GetZoom(), (float)SCREEN_WIDTH / (float)SCREEN_HEIGHT, 0.1f, 100.0f);
       glm::mat4 view = camera.GetViewMatrix();
 
-      float current_time = glfwGetTime();
+      auto current_time = static_cast<float>(glfwGetTime());
       animation_hover = glm::translate(glm::mat4(1.0f), glm::vec3(0.0f, 0.15f * sin(2 * current_time), 0.0f));
       animation_rotate = glm::rotate(animation_rotate, 0.02f, glm::vec3(0.0, 1.0, 0.0));
 
@@ -139,6 +161,24 @@ int main() {
 
       if(glfwGetKey(window, GLFW_KEY_DOWN) == GLFW_PRESS) {
         model = glm::rotate(model, 0.05f, glm::vec3(1.0f, 0.0f, 0.0f));
+      }
+
+      // Press space to change block
+      if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+        if(!space_pressed) {
+          space_pressed = true;
+          block_id = (block_id + 1) % block_list.size();
+
+          block.update_texture(block_list[block_id], block_id, root);
+          block.block_description();
+          glBindVertexArray(vao);
+          vb.UpdateData(block.vertices.data(), block.get_vertex_size());
+          glBindVertexArray(0);
+        }
+      }
+
+      if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
+        space_pressed = false;
       }
 
       // Swap Buffers

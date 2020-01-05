@@ -8,6 +8,15 @@
 #include <vector>
 #include <jsoncpp/json/json.h>
 
+enum class Face {
+  FRONT,
+  BACK,
+  RIGHT,
+  LEFT,
+  TOP,
+  BOTTOM
+};
+
 class Block {
  private:
   unsigned int id;
@@ -24,4 +33,7 @@ class Block {
   std::string get_name();
   void block_description();
   void update_texture(std::string block_name, unsigned int block_id, Json::Value root);
+  void set_top_face_height(float height);
+  void set_side_face_distance(float distance);
+  void reset_block();
 };

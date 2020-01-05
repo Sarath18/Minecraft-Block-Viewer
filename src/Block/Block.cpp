@@ -5,7 +5,7 @@
 #include <utility>
 #include <jsoncpp/json/json.h>
 
-Block::Block() {
+void Block::reset_block() {
   this->vertices = {
       // Front.             Normals              Texture Coordinates
       -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
@@ -38,6 +38,10 @@ Block::Block() {
        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.5f, 0.5f,
       -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.5f
   };
+}
+
+Block::Block() {
+  this->reset_block();
 
   this->indices = {
       // Front
@@ -162,6 +166,22 @@ void Block::update_texture(std::string block_name, unsigned int block_id, Json::
     face_id++;
   }
 }
+
 std::string Block::get_name() {
   return this->name;
+}
+
+void Block::set_top_face_height(float height) {
+  for(int i=0;i<4;i++) {
+    this->vertices[(static_cast<int>(Face::TOP) * 8 * 4) + (i * 8) + 1] = height;
+  }
+}
+
+void Block::set_side_face_distance(float distance) {
+  for(int i=0;i<4;i++) {
+    this->vertices[(static_cast<int>(Face::RIGHT) * 8 * 4) + (i * 8)] = -distance;
+    this->vertices[(static_cast<int>(Face::FRONT) * 8 * 4) + (i * 8) + 2] = distance;
+    this->vertices[(static_cast<int>(Face::BACK) * 8 * 4) + (i * 8) + 2] = -distance;
+    this->vertices[(static_cast<int>(Face::LEFT) * 8 * 4) + (i * 8)] = distance;
+  }
 }

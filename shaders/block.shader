@@ -52,6 +52,10 @@ layout(location = 0) out vec4 color;
 
 void main()
 {
+   float textureAlpha = texture(material.diffuse, v_TexCoord).a;
+   if(textureAlpha < 0.1)
+      discard;
+
    // Apply texture without lighting
    if(lightingEnabled == 0) {
       vec4 texColor = texture(u_Texture, v_TexCoord);
@@ -61,10 +65,6 @@ void main()
    //Phong Shading
    else
    {
-      float textureAlpha = texture(material.diffuse, v_TexCoord).a;
-      if(textureAlpha < 0.1)
-         discard;
-
       // Ambient
       vec3 ambient = light.ambient * texture(material.diffuse, v_TexCoord).rgb;
 

@@ -125,6 +125,7 @@ int main() {
 
     glm::vec3 lightPosition(-4.0f, 5.0f, 4.0f);
     bool lighting_enabled = false;
+    bool block_modified = false;
 
     do {
       GLClearError();
@@ -190,20 +191,48 @@ int main() {
           page_up_pressed = true;
           block_id = (block_id + 1) % block_list.size();
           block.block_description();
-          if(is_block_translucent(block_list[block_id])){
+
+          if(block_modified) {
+            block.reset_block();
+            block_modified = false;
+          }
+
+          if (block_list[block_id] == "enchanting_table") {
+            block.set_top_face_height(0.25f);
+            block_modified = true;
+          }
+          if (block_list[block_id] == "cactus") {
+            block.set_side_face_distance(0.43f);
+            block_modified = true;
+          }
+          if (block_list[block_id] == "cake") {
+            block.set_side_face_distance(0.43f);
+            block.set_top_face_height(0.0f);
+            block_modified = true;
+          }
+          if (block_list[block_id] == "endframe") {
+            block.set_top_face_height(0.3f);
+            block_modified = true;
+          }
+          if (block_list[block_id] == "grass_path") {
+            block.set_top_face_height(0.43f);
+            block_modified = true;
+          }
+
+          if (is_block_translucent(block_list[block_id])) {
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);
           } else {
-              glEnable(GL_DEPTH_TEST);
-              glEnable(GL_CULL_FACE);
-            }
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+          }
+
+          block.update_texture(block_list[block_id], block_id, root);
+
+          glBindVertexArray(vao);
+          vb.UpdateData(block.vertices.data(), block.get_vertex_size());
+          glBindVertexArray(0);
         }
-
-        block.update_texture(block_list[block_id], block_id, root);
-
-        glBindVertexArray(vao);
-        vb.UpdateData(block.vertices.data(), block.get_vertex_size());
-        glBindVertexArray(0);
       }
 
       if(glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_RELEASE) {
@@ -215,6 +244,34 @@ int main() {
           page_down_pressed = true;
           block_id = (block_id + block_list.size() - 1) % block_list.size();
           block.block_description();
+
+          if(block_modified) {
+            block.reset_block();
+            block_modified = false;
+          }
+
+          if (block_list[block_id] == "enchanting_table") {
+            block.set_top_face_height(0.25f);
+            block_modified = true;
+          }
+          if (block_list[block_id] == "cactus") {
+            block.set_side_face_distance(0.43f);
+            block_modified = true;
+          }
+          if (block_list[block_id] == "cake") {
+            block.set_side_face_distance(0.43f);
+            block.set_top_face_height(0.0f);
+            block_modified = true;
+          }
+          if (block_list[block_id] == "endframe") {
+            block.set_top_face_height(0.3f);
+            block_modified = true;
+          }
+          if (block_list[block_id] == "grass_path") {
+            block.set_top_face_height(0.43f);
+            block_modified = true;
+          }
+
           if(is_block_translucent(block_list[block_id])){
             glDisable(GL_DEPTH_TEST);
             glDisable(GL_CULL_FACE);

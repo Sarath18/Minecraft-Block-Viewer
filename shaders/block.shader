@@ -61,6 +61,10 @@ void main()
    //Phong Shading
    else
    {
+      float textureAlpha = texture(material.diffuse, v_TexCoord).a;
+      if(textureAlpha < 0.1)
+         discard;
+
       // Ambient
       vec3 ambient = light.ambient * texture(material.diffuse, v_TexCoord).rgb;
 
@@ -77,6 +81,6 @@ void main()
       vec3 specular = light.specular * spec * texture(material.specular, v_TexCoord).rgb;
 
       vec3 result = ambient + diffuse + specular;
-      color = vec4(result, 1.0);
+      color = vec4(result, textureAlpha);
    }
 }

@@ -44,12 +44,9 @@ int main() {
   glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
   // Set background color
-  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
+  glClearColor(0.2f, 0.7f, 1.0f, 1.0f);
 
   GLClearError();
-
-  // Background color: white
-  glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 
   {
     GLClearError();
@@ -59,20 +56,24 @@ int main() {
 
     glEnable(GL_CULL_FACE);
 
-    // Initalize Camera
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Initialize Camera
     Camera camera(glm::vec3(-3.0f, 1.5f, 3.0f), glm::vec3(0.0f, 1.0f, 0.0f), -45.0f, -20.0f);
 
-    // Initalize Shaer
+    // Initialize Shader
     Shader shader("../shaders/block.shader");
 
     // Read block information from file
     Json::Reader reader;
     Json::Value root;
-    std::ifstream ifs("../res/block_info.json");
+    std::string filename = "block_info.json";
+    std::ifstream ifs("../res/" + filename);
     bool parsing_successful = reader.parse(ifs, root);
-    if(!parsing_successful) {
-      std::cout << "Failed to parse block_info.json" << std::endl;
-      getchar();
+    if(!parsing_successful)  {
+      std::cout << "Failed to parse " << filename << std::endl;
+      glfwTerminate();
       return -1;
     }
 
@@ -85,7 +86,8 @@ int main() {
     Block block(block_list.front(), 0, root);
     block.block_description();
 
-    Texture texture_atlas("../res/texture.png");
+    // Load Texture Atlas
+    Texture texture_atlas("../res/minecraft_texture_atlas.png");
     texture_atlas.Bind(0);
 
     unsigned int vao;
@@ -117,7 +119,7 @@ int main() {
 
     GLCheckError();
 
-    bool space_pressed = false, l_pressed = false;
+    bool page_up_pressed = false, page_down_pressed = false, l_pressed = false;
 
     unsigned int block_id = 0;
 
@@ -160,11 +162,12 @@ int main() {
           shader.SetUniform1i("material.diffuse", 0);
           shader.SetUniform1i("material.specular", 0);
           shader.SetUniform1f("material.shininess", 2.0f);
-        }
 
+        }
         renderer.Draw(vao, ib, shader);
       }
 
+      // Rotate block
       if(glfwGetKey(window, GLFW_KEY_LEFT) == GLFW_PRESS) {
         model = glm::rotate(model, -0.05f, glm::vec3(0, 1.0f, 0.0f));
       }
@@ -181,22 +184,55 @@ int main() {
         model = glm::rotate(model, 0.05f, glm::vec3(1.0f, 0.0f, 0.0f));
       }
 
-      // Press space to change block
-      if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-        if(!space_pressed) {
-          space_pressed = true;
+      // Change block
+      if(glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS) {
+        if(!page_up_pressed) {
+          page_up_pressed = true;
           block_id = (block_id + 1) % block_list.size();
-
-          block.update_texture(block_list[block_id], block_id, root);
           block.block_description();
-          glBindVertexArray(vao);
-          vb.UpdateData(block.vertices.data(), block.get_vertex_size());
-          glBindVertexArray(0);
+          if(is_block_translucent(block_list[block_id])){
+            glDisable(GL_DEPTH_TEST);
+            glDisable(GL_CULL_FACE);
+          } else {
+              glEnable(GL_DEPTH_TEST);
+              glEnable(GL_CULL_FACE);
+            }
         }
+
+        block.update_texture(block_list[block_id], block_id, root);
+
+        glBindVertexArray(vao);
+        vb.UpdateData(block.vertices.data(), block.get_vertex_size());
+        glBindVertexArray(0);
       }
 
-      if(glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
-        space_pressed = false;
+      if(glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_RELEASE) {
+        page_up_pressed = false;
+      }
+
+      if(glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS) {
+        if(!page_down_pressed) {
+          page_down_pressed = true;
+          block_id = (block_id + block_list.size() - 1) % block_list.size();
+          block.block_description();
+          if(is_block_translucent(block_list[block_id])){
+            glDisable(GL_DEPTH_TEST);
+            glDisable(GL_CULL_FACE);
+          } else {
+            glEnable(GL_DEPTH_TEST);
+            glEnable(GL_CULL_FACE);
+          }
+        }
+
+        block.update_texture(block_list[block_id], block_id, root);
+
+        glBindVertexArray(vao);
+        vb.UpdateData(block.vertices.data(), block.get_vertex_size());
+        glBindVertexArray(0);
+      }
+
+      if(glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_RELEASE) {
+        page_down_pressed = false;
       }
 
       if(glfwGetKey(window, GLFW_KEY_L) == GLFW_PRESS) {
@@ -218,5 +254,11 @@ int main() {
     } while(glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS && glfwWindowShouldClose(window) == 0);
   }
 
+  glfwTerminate();
   return 0;
+}
+
+bool is_block_translucent(std::basic_string<char> &block_name) {
+  return (block_name.find("glass") && block_name.find("mob_spawner") && block_name.find("slime")
+      && block_name.find("leaves")) == 0;
 }

@@ -21,6 +21,7 @@ class Block {
 
   unsigned int get_vertex_size();
   unsigned int get_index_size();
+  std::string get_name();
   void block_description();
   void update_texture(std::string block_name, unsigned int block_id, Json::Value root);
 };

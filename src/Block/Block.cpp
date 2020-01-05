@@ -36,7 +36,7 @@ Block::Block() {
       -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
        0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.5f, 0.0f,
        0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.5f, 0.5f,
-      -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.5f,
+      -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.5f
   };
 
   this->indices = {
@@ -66,35 +66,35 @@ Block::Block(std::string block_name, unsigned int block_id, Json::Value &root)
 
   this->vertices = {
       // Front.             Normals              Texture Coordinates
-      -0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f,
-      0.5f, -0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.5f, 0.0f,
-      0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.5f, 0.5f,
-      -0.5f, 0.5f, 0.5f, 0.0f, 0.0f, 1.0f, 0.0f, 0.5f,
+      -0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.0f,
+       0.5f, -0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.5f, 0.0f,
+       0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.5f, 0.5f,
+      -0.5f,  0.5f,  0.5f,  0.0f,  0.0f,  1.0f,  0.0f, 0.5f,
       // Back
-      0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.0f,
-      -0.5f, -0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.5f, 0.0f,
-      -0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.5f, 0.5f,
-      0.5f, 0.5f, -0.5f, 0.0f, 0.0f, -1.0f, 0.0f, 0.5f,
+       0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.0f,
+      -0.5f, -0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.5f, 0.0f,
+      -0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.5f, 0.5f,
+       0.5f,  0.5f, -0.5f,  0.0f,  0.0f, -1.0f,  0.0f, 0.5f,
       // Left
-      -0.5f, -0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-      -0.5f, -0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.5f, 0.0f,
-      -0.5f, 0.5f, 0.5f, -1.0f, 0.0f, 0.0f, 0.5f, 0.5f,
-      -0.5f, 0.5f, -0.5f, -1.0f, 0.0f, 0.0f, 0.0f, 0.5f,
+      -0.5f, -0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+      -0.5f, -0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.5f, 0.0f,
+      -0.5f,  0.5f,  0.5f, -1.0f,  0.0f,  0.0f,  0.5f, 0.5f,
+      -0.5f,  0.5f, -0.5f, -1.0f,  0.0f,  0.0f,  0.0f, 0.5f,
       // Right
-      0.5f, -0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f,
-      0.5f, -0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.5f, 0.0f,
-      0.5f, 0.5f, -0.5f, 1.0f, 0.0f, 0.0f, 0.5f, 0.5f,
-      0.5f, 0.5f, 0.5f, 1.0f, 0.0f, 0.0f, 0.0f, 0.5f,
+       0.5f, -0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.0f,
+       0.5f, -0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.5f, 0.0f,
+       0.5f,  0.5f, -0.5f,  1.0f,  0.0f,  0.0f,  0.5f, 0.5f,
+       0.5f,  0.5f,  0.5f,  1.0f,  0.0f,  0.0f,  0.0f, 0.5f,
       // Top
-      -0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f,
-      0.5f, 0.5f, 0.5f, 0.0f, 1.0f, 0.0f, 0.5f, 0.0f,
-      0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.5f, 0.5f,
-      -0.5f, 0.5f, -0.5f, 0.0f, 1.0f, 0.0f, 0.0f, 0.5f,
+      -0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.0f,
+       0.5f,  0.5f,  0.5f,  0.0f,  1.0f,  0.0f,  0.5f, 0.0f,
+       0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.5f, 0.5f,
+      -0.5f,  0.5f, -0.5f,  0.0f,  1.0f,  0.0f,  0.0f, 0.5f,
       // Bottom
-      -0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.0f,
-      0.5f, -0.5f, -0.5f, 0.0f, -1.0f, 0.0f, 0.5f, 0.0f,
-      0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.5f, 0.5f,
-      -0.5f, -0.5f, 0.5f, 0.0f, -1.0f, 0.0f, 0.0f, 0.5f,
+      -0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.0f,
+       0.5f, -0.5f, -0.5f,  0.0f, -1.0f,  0.0f,  0.5f, 0.0f,
+       0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.5f, 0.5f,
+      -0.5f, -0.5f,  0.5f,  0.0f, -1.0f,  0.0f,  0.0f, 0.5f
   };
 
   update_texture(this->name, this->id, root);
@@ -143,19 +143,25 @@ void Block::update_texture(std::string block_name, unsigned int block_id, Json::
   int rows = root["texture_atlas"].get("rows", 1).asInt();
   int cols = root["texture_atlas"].get("columns", 1).asInt();
 
+  auto width = 1.0f/(float)cols;
+  auto height = 1.0f/(float)rows;
+
   for(auto face : root["blocks"][this->name]){
     x = face[0].asFloat(); y = face[1].asFloat();
 
     for(int i=0;i < 8*4;i+=8*4) {
-      this->vertices[(face_id * 8 * 4) + i + 06] = (x * (1.0 / (float)rows)) + 0.0f;
-      this->vertices[(face_id * 8 * 4) + i + 07] = (y * (1.0 / (float)cols)) + 0.0f;
-      this->vertices[(face_id * 8 * 4) + i + 14] = (x * (1.0 / (float)rows)) + 0.5f;
-      this->vertices[(face_id * 8 * 4) + i + 15] = (y * (1.0 / (float)cols)) + 0.0f;
-      this->vertices[(face_id * 8 * 4) + i + 22] = (x * (1.0 / (float)rows)) + 0.5f;
-      this->vertices[(face_id * 8 * 4) + i + 23] = (y * (1.0 / (float)cols)) + 0.5f;
-      this->vertices[(face_id * 8 * 4) + i + 30] = (x * (1.0 / (float)rows)) + 0.0f;
-      this->vertices[(face_id * 8 * 4) + i + 31] = (y * (1.0 / (float)cols)) + 0.5f;
+      this->vertices[(face_id * 8 * 4) + i + 06] = (x * width) + 0.0f;
+      this->vertices[(face_id * 8 * 4) + i + 07] = (y * height) + 0.0f;
+      this->vertices[(face_id * 8 * 4) + i + 14] = (x * width) + width;
+      this->vertices[(face_id * 8 * 4) + i + 15] = (y * height) + 0.0f;
+      this->vertices[(face_id * 8 * 4) + i + 22] = (x * width) + width;
+      this->vertices[(face_id * 8 * 4) + i + 23] = (y * height) + width;
+      this->vertices[(face_id * 8 * 4) + i + 30] = (x * width) + 0.0f;
+      this->vertices[(face_id * 8 * 4) + i + 31] = (y * height) + width;
     }
     face_id++;
   }
+}
+std::string Block::get_name() {
+  return this->name;
 }

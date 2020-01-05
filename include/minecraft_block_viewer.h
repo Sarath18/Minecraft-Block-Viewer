@@ -34,5 +34,7 @@ void GLCheckError() {
   }
 }
 
-const int WIDTH = 450, HEIGHT = 600;
+bool is_block_translucent(std::basic_string<char> &block_name);
+
+const int WIDTH = 450, HEIGHT = 550;
 int SCREEN_WIDTH, SCREEN_HEIGHT;

@@ -147,6 +147,11 @@ int main() {
         shader.SetUniformMat4f("view", view);
         shader.SetUniformMat4f("model", animation_rotate * animation_hover * model);
 
+        if(block_list[block_id].find("leaves") != std::string::npos)
+          shader.SetUniform1i("isLeaf", 1);
+        else
+          shader.SetUniform1i("isLeaf", 0);
+
         if(lighting_enabled) {
           shader.SetUniform1i("u_Texture", 0);
           shader.SetUniform1i("lightingEnabled", 0);

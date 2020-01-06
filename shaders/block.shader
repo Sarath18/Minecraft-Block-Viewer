@@ -43,6 +43,7 @@ in vec2 v_TexCoord;
 
 uniform sampler2D u_Texture;
 uniform int lightingEnabled;
+uniform int isLeaf;
 
 uniform vec3 viewPos;
 uniform Material material;
@@ -59,7 +60,10 @@ void main()
    // Apply texture without lighting
    if(lightingEnabled == 0) {
       vec4 texColor = texture(u_Texture, v_TexCoord);
-      color = texColor;
+      if(isLeaf == 1)
+         color = vec4(0.0, texColor.g, 0.0, textureAlpha);
+      else
+         color = texColor;
    }
 
    //Phong Shading
@@ -81,6 +85,9 @@ void main()
       vec3 specular = light.specular * spec * texture(material.specular, v_TexCoord).rgb;
 
       vec3 result = ambient + diffuse + specular;
-      color = vec4(result, textureAlpha);
+      if(isLeaf == 1)
+         color = vec4(0.0, result.g, 0.0, textureAlpha);
+      else
+         color = vec4(result, textureAlpha);
    }
 }

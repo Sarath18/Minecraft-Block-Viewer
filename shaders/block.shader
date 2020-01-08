@@ -4,6 +4,7 @@
 layout(location = 0) in vec4 position;
 layout(location = 1) in vec3 normal;
 layout(location = 2) in vec2 texCoord;
+layout(location = 3) in vec2 specTexCoord;
 
 uniform mat4 projection;
 uniform mat4 view;
@@ -12,11 +13,13 @@ uniform mat4 model;
 out vec3 FragPos;
 out vec3 Normal;
 out vec2 v_TexCoord;
+out vec2 s_TexCoord;
 
 void main()
 {
    gl_Position = projection * view * model * position;
    v_TexCoord = texCoord;
+   s_TexCoord = specTexCoord;
    FragPos = vec3(model * position);
    Normal = mat3(transpose(inverse(model))) * normal;
 }
@@ -40,10 +43,12 @@ struct Light {
 in vec3 FragPos;
 in vec3 Normal;
 in vec2 v_TexCoord;
+in vec2 s_TexCoord;
 
 uniform sampler2D u_Texture;
 uniform int lightingEnabled;
 uniform int isLeaf;
+uniform int hasSpecularTexture;
 
 uniform vec3 viewPos;
 uniform Material material;
@@ -82,7 +87,14 @@ void main()
       vec3 viewDir = normalize(viewPos - FragPos);
       vec3 reflectDir = reflect(-lightDir, norm);
       float spec = pow(max(dot(viewDir, reflectDir), 0.0), material.shininess);
-      vec3 specular = light.specular * spec * texture(material.specular, v_TexCoord).rgb;
+
+      vec3 specular;
+      if(hasSpecularTexture == 1) {
+         specular = light.specular * spec * texture(material.specular, s_TexCoord).rgb;
+      }
+      else
+         specular = light.specular * spec * texture(material.specular, v_TexCoord).rgb;
+
 
       vec3 result = ambient + diffuse + specular;
       if(isLeaf == 1)

@@ -2,7 +2,7 @@
 // Created by Sarathkrishnan Ramesh on 1/1/20.
 //
 #include "minecraft_block_viewer.h"
-
+#include <algorithm>
 int main() {
   std::cout << "Welcome to Minecraft Block Viewer" << std::endl;
 
@@ -76,20 +76,75 @@ int main() {
       glfwTerminate();
       return -1;
     }
+    ifs.close();
+
+    Json::Value specular_root;
+    filename = "block_specular_info.json";
+    ifs.open("../res/" + filename);
+    parsing_successful = reader.parse(ifs, specular_root);
+    if(!parsing_successful) {
+      std::cout << "Failed to parse " << filename << std::endl;
+      glfwTerminate();
+      return -1;
+    }
 
     std::vector<std::string> block_list;
     for(auto data: root["blocks"].getMemberNames()) {
       block_list.push_back(data);
     }
 
+    std::string first_block = "beacon";
+    unsigned int block_id;
+    auto itr = std::find(block_list.begin(), block_list.end(), first_block);
+    if ( itr != block_list.end()) {
+      block_id = itr - block_list.begin();
+    } else {
+      block_id = 0;
+      first_block = block_list.front();
+    }
+
     // Create a block
-    Block block(block_list.front(), 0, root);
+    Block block(first_block, block_id, root);
     block.block_description();
 
     // Load Texture Atlas
     Texture texture_atlas("../res/minecraft_texture_atlas.png");
     texture_atlas.Bind(0);
 
+    Texture specular_atlas("../res/specular_texture_atlas.png");
+    specular_atlas.Bind(1);
+
+    std::vector<float> specular_texture_coordinates = {
+        0.00f, 0.00f,
+        0.25f, 0.00f,
+        0.25f, 0.25f,
+        0.00f, 0.25f,
+
+        0.00f, 0.00f,
+        0.25f, 0.00f,
+        0.25f, 0.25f,
+        0.00f, 0.25f,
+
+        0.00f, 0.00f,
+        0.25f, 0.00f,
+        0.25f, 0.25f,
+        0.00f, 0.25f,
+
+        0.00f, 0.00f,
+        0.25f, 0.00f,
+        0.25f, 0.25f,
+        0.00f, 0.25f,
+
+        0.00f, 0.00f,
+        0.25f, 0.00f,
+        0.25f, 0.25f,
+        0.00f, 0.25f,
+
+        0.00f, 0.00f,
+        0.25f, 0.00f,
+        0.25f, 0.25f,
+        0.00f, 0.25f
+    };
     unsigned int vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -109,6 +164,12 @@ int main() {
     glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void *)(6 * sizeof(float)));
     glEnableVertexAttribArray(2);
 
+    VertexBuffer svb(specular_texture_coordinates.data(), 2 * 6 * 4 * sizeof(float));
+    svb.Bind();
+
+    glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(3);
+
     glBindVertexArray(0);
 
     IndexBuffer ib(block.indices.data(), block.get_index_size());
@@ -120,8 +181,6 @@ int main() {
     GLCheckError();
 
     bool page_up_pressed = false, page_down_pressed = false, l_pressed = false;
-
-    unsigned int block_id = 0;
 
     glm::vec3 lightPosition(-4.0f, 5.0f, 4.0f);
     bool lighting_enabled = false;
@@ -163,11 +222,26 @@ int main() {
 
           shader.SetUniform3f("light.ambient", 0.25f, 0.25f, 0.25f);
           shader.SetUniform3f("light.diffuse", 0.9f, 0.9f, 0.9f);
-          shader.SetUniform3f("light.specular", 0.5f, 0.5f, 0.5f);
 
           shader.SetUniform1i("material.diffuse", 0);
-          shader.SetUniform1i("material.specular", 0);
-          shader.SetUniform1f("material.shininess", 2.0f);
+
+          if(update_specular_texture(specular_texture_coordinates, specular_root, block_list[block_id])) {
+            glBindVertexArray(vao);
+            svb.Bind();
+            svb.UpdateData(specular_texture_coordinates.data(), 2 * 4 * 6 * sizeof(float));
+            glBindVertexArray(0);
+            shader.SetUniform1i("hasSpecularTexture", 1);
+            shader.SetUniform3f("light.specular", 1.0f, 1.0f, 1.0f);
+            shader.SetUniform1i("material.specular", 1);
+            shader.SetUniform1f("material.shininess", 64.0f);
+          }
+
+          else {
+            shader.SetUniform1i("hasSpecularTexture", 0);
+            shader.SetUniform3f("light.specular", 0.5f, 0.5f, 0.5f);
+            shader.SetUniform1i("material.specular", 0);
+            shader.SetUniform1f("material.shininess", 2.0f);
+          }
 
         }
         renderer.Draw(vao, ib, shader);
@@ -235,6 +309,7 @@ int main() {
           block.update_texture(block_list[block_id], block_id, root);
 
           glBindVertexArray(vao);
+          vb.Bind();
           vb.UpdateData(block.vertices.data(), block.get_vertex_size());
           glBindVertexArray(0);
         }
@@ -289,6 +364,7 @@ int main() {
         block.update_texture(block_list[block_id], block_id, root);
 
         glBindVertexArray(vao);
+        vb.Bind();
         vb.UpdateData(block.vertices.data(), block.get_vertex_size());
         glBindVertexArray(0);
       }
@@ -323,4 +399,25 @@ int main() {
 bool is_block_translucent(std::basic_string<char> &block_name) {
   return (block_name.find("glass") && block_name.find("mob_spawner") && block_name.find("slime")
       && block_name.find("leaves")) == 0;
+}
+
+
+bool update_specular_texture(std::vector<float> &texture_coordinates, Json::Value root, const std::string& block_name) {
+  if(!root.isMember(block_name))
+    return false;
+
+  float x = root[block_name][0].asFloat();
+  float y = root[block_name][1].asFloat();
+
+  for(int i=0;i<6;i++) {
+    texture_coordinates[(i * 8)] = (x * 0.25f);
+    texture_coordinates[(i * 8) + 1] = (y * 0.25f);
+    texture_coordinates[(i * 8) + 2] = (x * 0.25f) + 0.25f;
+    texture_coordinates[(i * 8) + 3] = (y * 0.25f);
+    texture_coordinates[(i * 8) + 4] = (x * 0.25f) + 0.25f;
+    texture_coordinates[(i * 8) + 5] = (y * 0.25f) + 0.25f;
+    texture_coordinates[(i * 8) + 6] = (x * 0.25f);
+    texture_coordinates[(i * 8) + 7] = (y * 0.25f) + 0.25f;
+  }
+  return true;
 }

@@ -1,0 +1,14 @@
+{
+	"atlas_info": {
+		"name": "specular_texture_atlas.png", 
+		"columns": 4, 
+		"rows": 4
+	},
+	"diamond_ore": [0, 3],
+	"emerald_ore": [0, 2],
+	"gold_ore": [0, 1],
+	"iron_ore": [0, 0],
+	"lapis_ore": [1, 3],
+	"quartz_ore": [2, 3],
+	"redstone_ore": [3, 3]
+}

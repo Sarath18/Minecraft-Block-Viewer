@@ -114,6 +114,8 @@ int main() {
     Texture specular_atlas("../res/specular_texture_atlas.png");
     specular_atlas.Bind(1);
 
+    Texture break_atlas("../res/break_texture.png");
+
     std::vector<float> specular_texture_coordinates = {
         0.00f, 0.00f,
         0.25f, 0.00f,
@@ -145,6 +147,39 @@ int main() {
         0.25f, 0.25f,
         0.00f, 0.25f
     };
+
+    std::vector<float> break_texture_coordinates = {
+        0.0f, 0.0f,
+        0.1f, 0.0f,
+        0.1f, 1.0f,
+        0.0f, 1.0f,
+
+        0.0f, 0.0f,
+        0.1f, 0.0f,
+        0.1f, 1.0f,
+        0.0f, 1.0f,
+
+        0.0f, 0.0f,
+        0.1f, 0.0f,
+        0.1f, 1.0f,
+        0.0f, 1.0f,
+
+        0.0f, 0.0f,
+        0.1f, 0.0f,
+        0.1f, 1.0f,
+        0.0f, 1.0f,
+
+        0.0f, 0.0f,
+        0.1f, 0.0f,
+        0.1f, 1.0f,
+        0.0f, 1.0f,
+
+        0.0f, 0.0f,
+        0.1f, 0.0f,
+        0.1f, 1.0f,
+        0.0f, 1.0f
+    };
+
     unsigned int vao;
     glGenVertexArrays(1, &vao);
     glBindVertexArray(vao);
@@ -170,6 +205,12 @@ int main() {
     glVertexAttribPointer(3, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
     glEnableVertexAttribArray(3);
 
+    VertexBuffer bvb(break_texture_coordinates.data(), 2 * 6 * 4 * sizeof(float));
+    bvb.Bind();
+
+    glVertexAttribPointer(4, 2, GL_FLOAT, GL_FALSE, 2 * sizeof(float), (void *)0);
+    glEnableVertexAttribArray(4);
+
     glBindVertexArray(0);
 
     IndexBuffer ib(block.indices.data(), block.get_index_size());
@@ -180,11 +221,13 @@ int main() {
 
     GLCheckError();
 
-    bool page_up_pressed = false, page_down_pressed = false, l_pressed = false;
+    bool page_up_pressed = false, page_down_pressed = false, l_pressed = false, b_pressed = false;
 
     glm::vec3 lightPosition(-4.0f, 5.0f, 4.0f);
     bool lighting_enabled = false;
     bool block_modified = false;
+
+    int state = 10;
 
     do {
       GLClearError();
@@ -200,11 +243,19 @@ int main() {
       // Render Block
       {
         texture_atlas.Bind(0);
+        specular_atlas.Bind(1);
+        break_atlas.Bind(2);
 
         shader.Bind();
         shader.SetUniformMat4f("projection", projection);
         shader.SetUniformMat4f("view", view);
         shader.SetUniformMat4f("model", animation_rotate * animation_hover * model);
+        shader.SetUniform1i("breakTexture", 2);
+
+        if(state == 10)
+          shader.SetUniform1i("applyBreakTexture", 0);
+        else
+          shader.SetUniform1i("applyBreakTexture", 1);
 
         if(block_list[block_id].find("leaves") != std::string::npos)
           shader.SetUniform1i("isLeaf", 1);
@@ -315,6 +366,27 @@ int main() {
         }
       }
 
+      if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
+        if(!b_pressed) {
+          b_pressed = true;
+
+          state = (state + 1) % 11;
+          if(state != 10)
+            update_break_texture(break_texture_coordinates, state);
+
+          block.update_texture(block_list[block_id], block_id, root);
+
+          glBindVertexArray(vao);
+          bvb.Bind();
+          bvb.UpdateData(break_texture_coordinates.data(), break_texture_coordinates.size() * sizeof(float));
+          glBindVertexArray(0);
+        }
+      }
+
+      if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+        b_pressed = false;
+      }
+
       if(glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_RELEASE) {
         page_up_pressed = false;
       }
@@ -418,6 +490,16 @@ bool update_specular_texture(std::vector<float> &texture_coordinates, Json::Valu
     texture_coordinates[(i * 8) + 5] = (y * 0.25f) + 0.25f;
     texture_coordinates[(i * 8) + 6] = (x * 0.25f);
     texture_coordinates[(i * 8) + 7] = (y * 0.25f) + 0.25f;
+  }
+  return true;
+}
+
+bool update_break_texture(std::vector<float> &texture_coordinates, const int state) {
+  for(int i=0;i<6;i++) {
+    texture_coordinates[(i * 8) + 0] = (static_cast<float>(state) * 0.1f);
+    texture_coordinates[(i * 8) + 2] = (static_cast<float>(state) * 0.1f) + 0.1f;
+    texture_coordinates[(i * 8) + 4] = (static_cast<float>(state) * 0.1f) + 0.1f;
+    texture_coordinates[(i * 8) + 6] = (static_cast<float>(state) * 0.1f);
   }
   return true;
 }

@@ -36,6 +36,8 @@ void GLCheckError() {
 
 bool is_block_translucent(std::basic_string<char> &block_name);
 bool update_specular_texture(std::vector<float> &texture_coordinates, Json::Value root, const std::string& block_name);
+bool update_break_texture(std::vector<float> &texture_coordinates, const int state);
 
 const int WIDTH = 450, HEIGHT = 550;
 int SCREEN_WIDTH, SCREEN_HEIGHT;
+

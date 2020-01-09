@@ -228,6 +228,7 @@ int main() {
     bool block_modified = false;
 
     int state = 10;
+    float lastTime = 0.0f;
 
     do {
       GLClearError();
@@ -318,6 +319,7 @@ int main() {
       // Change block
       if(glfwGetKey(window, GLFW_KEY_PAGE_UP) == GLFW_PRESS) {
         if(!page_up_pressed) {
+          state = 10;
           page_up_pressed = true;
           block_id = (block_id + 1) % block_list.size();
           block.block_description();
@@ -367,23 +369,30 @@ int main() {
       }
 
       if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_PRESS) {
-        if(!b_pressed) {
-          b_pressed = true;
+          if(!b_pressed) {
+            lastTime = glfwGetTime();
+            b_pressed = true;
+          }
 
-          state = (state + 1) % 11;
-          if(state != 10)
-            update_break_texture(break_texture_coordinates, state);
+          float currentTime = glfwGetTime();
+          float speed = 0.1f;
+          if(currentTime - lastTime > speed) {
+            lastTime += speed;
+            state = (state + 1) % 11;
+            if(state != 10)
+              update_break_texture(break_texture_coordinates, state);
 
-          block.update_texture(block_list[block_id], block_id, root);
+            block.update_texture(block_list[block_id], block_id, root);
 
-          glBindVertexArray(vao);
-          bvb.Bind();
-          bvb.UpdateData(break_texture_coordinates.data(), break_texture_coordinates.size() * sizeof(float));
-          glBindVertexArray(0);
-        }
+            glBindVertexArray(vao);
+            bvb.Bind();
+            bvb.UpdateData(break_texture_coordinates.data(), break_texture_coordinates.size() * sizeof(float));
+            glBindVertexArray(0);
+          }
       }
 
       if(glfwGetMouseButton(window, GLFW_MOUSE_BUTTON_LEFT) == GLFW_RELEASE) {
+        state = 10;
         b_pressed = false;
       }
 
@@ -393,6 +402,7 @@ int main() {
 
       if(glfwGetKey(window, GLFW_KEY_PAGE_DOWN) == GLFW_PRESS) {
         if(!page_down_pressed) {
+          state = 10;
           page_down_pressed = true;
           block_id = (block_id + block_list.size() - 1) % block_list.size();
           block.block_description();

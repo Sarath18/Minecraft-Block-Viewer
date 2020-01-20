@@ -5,10 +5,9 @@ The purpose behind the developement of this project was solely learning Computer
 
 #### Preview
 <p align="center">
-    <img src="https://drive.google.com/uc?export=view&id=1nbPvCFZ0iK6C_sT1JNBE-XEGoEx9WKwc" height=250>
+    <img src="https://i.ibb.co/WDfSR88/compressed101.gif" alt="Minecraft Blocks rendered in OpenGL" height=250>
     &nbsp;&nbsp;
-    <img src="https://drive.google.com/uc?export=view&id=1wLdfYx9zQe8cHwNv39qQYqocJyRpAQ-H" height="250">
-    <br>
+    <img src="https://i.ibb.co/mC08YjF/compressed102.gif" alt="Specular and diffuse maps" height=250><br>
     <i>Block textures redered using OpenGL with diffuse and specular maps</i>
 </p>
 
